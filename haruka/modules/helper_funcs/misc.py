@@ -53,74 +53,33 @@ def paginate_modules(chat_id, page_n: int, module_dict: Dict, prefix, chat=None)
                                     callback_data="{}_module({},{})".format(prefix, chat, x.__mod_name__.lower())) for x
              in module_dict.values()])
 
-    pairs = list(zip(modules[::2], modules[1::2]))
+    pairs = list(zip(modules[::4], modules[4::3], modules[3::4]))
 
-    if len(modules) % 2 == 1:
+    if len(modules) % 4 == 3:
         pairs.append((modules[-1],))
+    for i in range(0, len(modules) , 3):
 
-    max_num_pages = ceil(len(pairs) / 7)
-    modulo_page = page_n % max_num_pages
+    try : 
+ 
+non = ( modules [ i ] , modules [ i + 1 ] . modules [ i + 2 ] ) 
+ emp . append ( non ) 
+except IndexError : 
 
-    # can only have a certain amount of buttons side by side
-    if len(pairs) > 7:
-        pairs = pairs[modulo_page * 7:7 * (modulo_page + 1)] + [
-            (EqInlineKeyboardButton("◀️", callback_data="{}_prev({})".format(prefix, modulo_page)),
-             EqInlineKeyboardButton("⬅️ Back", callback_data="bot_start"),
-             EqInlineKeyboardButton("▶️", callback_data="{}_next({})".format(prefix, modulo_page)))]
-    else:
-        pairs += [[EqInlineKeyboardButton("⬅️ Back", callback_data="bot_start")]]
+ 11 len ( modules ) % 3 = = 2 : 
+ non = ( modules [ 1 ] . modules [ i + 1 ] . " ' ) 
+ emp . append ( non ) 
+ else : 
+non modules [ i ] , " , " ' ) 
+emp . append ( non ) 
+ 
+ pairs = emp 
+ max _ num _ pages = ceil ( len ( pairs ) / 8 ) 
+ modulo _ page - page _ n % max _ num _ pages 
 
+FR 
+0 comments on commit ecdc2e0 
+Write Preview 
+AA Bi ( > EES @ RA 
+Leave a comment 
+Attach files by dragging & dropping , selecting or pasting them . 
 
-    return pairs
-
-
-def send_to_list(bot: Bot, send_to: list, message: str, markdown=False, html=False) -> None:
-    if html and markdown:
-        raise Exception("Can only send with either markdown or HTML!")
-    for user_id in set(send_to):
-        try:
-            if markdown:
-                bot.send_message(user_id, message, parse_mode=ParseMode.MARKDOWN)
-            elif html:
-                bot.send_message(user_id, message, parse_mode=ParseMode.HTML)
-            else:
-                bot.send_message(user_id, message)
-        except TelegramError:
-            pass  # ignore users who fail
-
-
-def build_keyboard(buttons):
-    keyb = []
-    for btn in buttons:
-        if btn.same_line and keyb:
-            keyb[-1].append(InlineKeyboardButton(btn.name, url=btn.url))
-        else:
-            keyb.append([InlineKeyboardButton(btn.name, url=btn.url)])
-
-    return keyb
-
-
-def revert_buttons(buttons):
-    res = ""
-    for btn in buttons:
-        if btn.same_line:
-            res += "\n[{}](buttonurl://{}:same)".format(btn.name, btn.url)
-        else:
-            res += "\n[{}](buttonurl://{})".format(btn.name, btn.url)
-
-    return res
-
-
-def is_module_loaded(name):
-    return (not LOAD or name in LOAD) and name not in NO_LOAD
-
-
-def user_bot_owner(func):
-    @wraps(func)
-    def is_user_bot_owner(bot: Bot, update: Update, *args, **kwargs):
-        user = update.effective_user
-        if user and user.id == OWNER_ID:
-            return func(bot, update, *args, **kwargs)
-        else:
-            pass
-    return is_user_bot_owner
